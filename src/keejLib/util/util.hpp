@@ -1,9 +1,44 @@
 #pragma once
-#include "main.h"
-#include "util.h"
+#include "../include/keejLib/lib.h"
+
 // - point
 
-namespace lib{
+double lib::point::mag()
+{
+    return(sqrt(pow(this -> x, 2) + pow(this -> y, 2)));
+}
+
+void lib::point::operator+=(double num)
+{
+    this -> x += num;
+    this -> y += num;
+}
+
+void lib::point::operator+=(const point& p)
+{
+    this -> x += p.x;
+    this -> y += p.y;
+}
+
+void lib::point::operator-=(double num)
+{
+    this -> x -= num;
+    this -> y -= num;
+}
+
+void lib::point::operator-=(const point& p)
+{
+    this -> x -= p.x;
+    this -> y -= p.y;
+}
+
+void lib::point::operator*=(double num)
+{
+    this -> x *= num;
+    this -> y *= num;
+}
+
+
 // - timer
 lib::timer::timer()
 {
@@ -31,7 +66,10 @@ double lib::pid::out(double error)
     return(error * constants.p  + integral * constants.i + derivative * constants.d);
 }
 
-
+double lib::pid::getDerivative() 
+{
+    return derivative;
+}
 
 // - util functions
 double lib::dtr(double input)
@@ -77,11 +115,32 @@ double lib::hypot(double a, double b)
     return(sqrt(pow(a, 2) + pow(b, 2)));
 }
 
-
-
-
-}
-double dist(const point& a, const point& b)
+double lib::dist(const point& a, const point& b)
 {
     return(hypot(b.x - a.x, b.y - a.y));
+}
+
+double lib::absoluteAngleToPoint(const point& pos, const point& point)
+{
+    double t;
+
+    try
+    { 
+        t = atan2(point.x - pos.x, point.y - pos.y);
+    }
+
+    catch(...)
+    {
+        t = PI/2;
+    }
+    
+    t = lib::rtd(t);
+
+    // -270 - 90
+
+    //-180 - 180
+
+    t = -t;
+    t = t >= 0 ? t :  180 + 180+t;
+    return (t);
 }

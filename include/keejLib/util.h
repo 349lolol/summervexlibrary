@@ -3,8 +3,8 @@
 #include <cmath>
 #include <vector>
 #include <set>
+#include "keejLib/groups.h"
 #include "main.h"
-#include "odom.hpp"
 
 #define PI 3.14159265358979323846
 #define ALLBUTTONS {pros::E_CONTROLLER_DIGITAL_L1, pros::E_CONTROLLER_DIGITAL_L2, pros::E_CONTROLLER_DIGITAL_R1, pros::E_CONTROLLER_DIGITAL_R2, pros::E_CONTROLLER_DIGITAL_UP, pros::E_CONTROLLER_DIGITAL_DOWN, pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT, pros::E_CONTROLLER_DIGITAL_X, pros::E_CONTROLLER_DIGITAL_B, pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A}
@@ -48,6 +48,25 @@ namespace lib
     //distance per 10 ms to motor volt
     struct atns{std::vector<fptr> autonsList; std::vector<std::string> names; };
 
+    class point
+    {
+        public:
+            double x, y;
+
+            double mag();
+
+            void operator+=(double num);
+
+            void operator+=(const point& p);
+
+            void operator-=(double num);
+
+            void operator-=(const point& p);
+
+            void operator*=(double num);
+    };
+
+    typedef point vec;
     
     class timer
     {
@@ -61,30 +80,29 @@ namespace lib
     class pid
     {
         private:
-            
-
-        public:
             double prevError,error,derivative,integralThreshold;
             double integral = 0;
             pidConstants constants;
+
+        public:
             pid(){}
 
             pid(pidConstants cons, double error) : constants(cons), prevError(error){}
 
             double out(double error);
+            double getDerivative();
     };
 
     class cubicBezier 
     {
         private:
-            
+            point p0, p1, p2, p3;
             
         public:
-        point p0, p1, p2, p3;
             cubicBezier(const point& p0, const point& p1, const point& p2, const point& p3);
 
             point evaluate(double t);
-            point evaluateDerivative(double t);
+            vec evaluateDerivative(double t);
             double length(int reso);
             double x(double t);
             double y(double t);
@@ -94,11 +112,10 @@ namespace lib
     class linearPath
     {
         private:
-            
+            std::vector<point> points;
+            int length;
 
         public:
-        std::vector<point> points;
-            int length;
             linearPath(std::vector<point> points);
 
             void smooth();
@@ -114,6 +131,8 @@ namespace lib
     double imuToRad(double heading);
     double sign(double a);
     double hypot(double a, double b);
+    // double hypot(lib::point a);
     double dist(const point& a, const point& b);
     double absoluteAngleToPoint(const point& pos, const point& point);
+    void motorMedic(mtrs& motors, int voltage, std::vector<int> indexes);
 }
